@@ -1,0 +1,287 @@
+@import url('https://fonts.googleapis.com/css2?family=Fraunces:ital,wght@0,600;1,500&family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600&display=swap');
+
+:root {
+    /* Tinta / navio-escuro como base — não o cream/terracota nem o
+       preto+neon que dominam interfaces "geradas por IA". */
+    --ink: #171f2b;
+    --panel: #1f2a38;
+    --panel-raised: #26323f;
+    --panel-line: #303f52;
+
+    /* Latão/carimbo — acento único, usado com moderação. */
+    --brass: #cda349;
+    --brass-hover: #e0b75c;
+    --brass-soft: rgba(205, 163, 73, 0.14);
+
+    --text-main: #edeae1;
+    --text-muted: #8d97a6;
+
+    --error: #e2685c;
+    --error-bg: rgba(226, 104, 92, 0.12);
+    --success: #74b490;
+    --success-bg: rgba(116, 180, 144, 0.12);
+
+    --radius: 4px;
+    --radius-sm: 3px;
+    --transition: 0.2s ease-in-out;
+
+    --font-display: "Fraunces", Georgia, serif;
+    --font-body: "IBM Plex Sans", -apple-system, "Segoe UI", Roboto, sans-serif;
+    --font-mono: "IBM Plex Mono", ui-monospace, "SFMono-Regular", Menlo, monospace;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+    font-family: var(--font-body);
+    background: var(--ink);
+    background-image:
+        radial-gradient(circle at 20% 20%, rgba(205, 163, 73, 0.05), transparent 45%),
+        radial-gradient(circle at 80% 85%, rgba(205, 163, 73, 0.04), transparent 40%);
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 16px;
+}
+
+@keyframes slideUpFade {
+    0% { opacity: 0; transform: translateY(16px); }
+    100% { opacity: 1; transform: translateY(0); }
+}
+
+/* ---- Cartão-comanda ---------------------------------------------------
+   Assinatura visual: o card se comporta como uma comanda de pedidos —
+   base picotada (perfuração) simulando um talão destacável, e uma
+   etiqueta de "carimbo" rotacionada no canto superior. Referência direta
+   ao domínio do produto (sistema de pedidos), não uma decoração genérica.
+------------------------------------------------------------------------- */
+.card {
+    position: relative;
+    background: var(--panel);
+    width: 100%;
+    max-width: 400px;
+    padding: 44px 32px 56px;
+    border-radius: var(--radius);
+    border: 1px solid var(--panel-line);
+    box-shadow: 0 20px 40px -12px rgba(0, 0, 0, 0.55);
+    animation: slideUpFade 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+.card::before {
+    content: "AUTENTICAÇÃO";
+    position: absolute;
+    top: -12px;
+    right: 28px;
+    padding: 4px 10px;
+    background: var(--panel);
+    border: 1px dashed var(--brass);
+    border-radius: var(--radius-sm);
+    color: var(--brass);
+    font-family: var(--font-mono);
+    font-size: 10px;
+    font-weight: 500;
+    letter-spacing: 0.14em;
+    transform: rotate(-3deg);
+}
+
+/* Base da comanda: linha picotada + perfuração, como um talão destacável. */
+.card::after {
+    content: "";
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 26px;
+    height: 12px;
+    background-image:
+        radial-gradient(circle, var(--ink) 3px, transparent 3.4px),
+        linear-gradient(var(--panel-line), var(--panel-line));
+    background-size: 16px 12px, 100% 1px;
+    background-position: 8px center, center 0;
+    background-repeat: repeat-x, no-repeat;
+}
+
+h1 {
+    font-family: var(--font-display);
+    font-size: 27px;
+    font-weight: 600;
+    margin-bottom: 30px;
+    color: var(--text-main);
+    text-align: center;
+    letter-spacing: -0.01em;
+}
+
+.input-group {
+    margin-bottom: 20px;
+    position: relative;
+}
+
+label {
+    display: block;
+    font-family: var(--font-mono);
+    font-size: 11px;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.09em;
+    color: var(--text-muted);
+    margin-bottom: 8px;
+}
+
+input {
+    width: 100%;
+    padding: 12px 14px;
+    background-color: var(--panel-raised);
+    border: 1px solid var(--panel-line);
+    border-radius: var(--radius-sm);
+    font-family: var(--font-body);
+    font-size: 15px;
+    color: var(--text-main);
+    transition: border-color var(--transition), box-shadow var(--transition);
+}
+
+input::placeholder {
+    color: var(--text-muted);
+    opacity: 0.6;
+}
+
+input:focus-visible {
+    outline: none;
+    border-color: var(--brass);
+    box-shadow: 0 0 0 3px var(--brass-soft);
+}
+
+.password-wrapper {
+    position: relative;
+    display: flex;
+    align-items: center;
+}
+
+.password-wrapper input {
+    padding-right: 48px;
+}
+
+.btn-toggle-password {
+    position: absolute;
+    right: 10px;
+    background: transparent;
+    border: none;
+    color: var(--text-muted);
+    cursor: pointer;
+    padding: 6px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: var(--radius-sm);
+    transition: color var(--transition);
+}
+
+.btn-toggle-password:hover {
+    color: var(--brass);
+}
+
+.btn-toggle-password:focus-visible {
+    outline: 2px solid var(--brass);
+    outline-offset: 1px;
+}
+
+.btn-toggle-password svg {
+    width: 20px;
+    height: 20px;
+}
+
+.btn-submit {
+    width: 100%;
+    padding: 13px;
+    background: var(--brass);
+    color: var(--ink);
+    border: none;
+    border-radius: var(--radius-sm);
+    font-family: var(--font-mono);
+    font-size: 13px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    cursor: pointer;
+    transition: background var(--transition), transform 0.1s ease;
+    margin-top: 8px;
+}
+
+.btn-submit:hover:not(:disabled) {
+    background: var(--brass-hover);
+}
+
+.btn-submit:active:not(:disabled) {
+    transform: scale(0.98);
+}
+
+.btn-submit:focus-visible {
+    outline: none;
+    box-shadow: 0 0 0 3px var(--brass-soft);
+}
+
+.btn-submit:disabled {
+    background: var(--panel-line);
+    color: var(--text-muted);
+    cursor: not-allowed;
+    transform: none;
+}
+
+.messages { margin-bottom: 22px; }
+
+.msg {
+    padding: 11px 14px;
+    border-radius: var(--radius-sm);
+    font-family: var(--font-mono);
+    font-size: 12.5px;
+    letter-spacing: 0.01em;
+    margin-bottom: 8px;
+    border-left: 3px solid transparent;
+}
+
+.msg.error { background: var(--error-bg); color: var(--error); border-left-color: var(--error); }
+.msg.success { background: var(--success-bg); color: var(--success); border-left-color: var(--success); }
+
+/* Estado de bloqueio: mesma caixa de erro, com o contador logo abaixo. */
+.msg-lockout strong { font-weight: 600; }
+
+.msg-lockout .lockout-timer {
+    display: block;
+    margin-top: 6px;
+    color: var(--text-muted);
+}
+
+.msg-lockout .lockout-timer strong {
+    color: var(--error);
+    font-variant-numeric: tabular-nums;
+}
+
+.footer-link {
+    text-align: center;
+    margin-top: 26px;
+    font-size: 13.5px;
+    color: var(--text-muted);
+}
+
+.footer-link a {
+    color: var(--brass);
+    text-decoration: none;
+    font-weight: 500;
+    border-bottom: 1px solid transparent;
+    transition: border-color var(--transition), color var(--transition);
+}
+
+.footer-link a:hover {
+    color: var(--brass-hover);
+    border-bottom-color: var(--brass-hover);
+}
+
+/* Acessibilidade: respeita preferência do usuário por menos movimento. */
+@media (prefers-reduced-motion: reduce) {
+    .card { animation: none; }
+    .btn-submit:active:not(:disabled) { transform: none; }
+}
+
+@media (max-width: 420px) {
+    .card { padding: 36px 22px 48px; }
+    h1 { font-size: 23px; }
+}

@@ -1,0 +1,277 @@
+{% extends "layout.html" %}
+
+{% set hide_topbar = true %}
+
+{% set show_sidebar = true %}
+
+{% block sidebar %}
+    {% include "_sidebar.html" %}
+{% endblock %}
+
+{% block content %}
+<section class="ops-shell">
+    <header class="ops-header">
+        <div>
+            <span class="eyebrow">Central Nordeste de Peças LTDA</span>
+            <h1>Controle de pedidos</h1>
+            <p>Uma visão rápida do que está pendente, em trânsito, atrasado e concluído.</p>
+        </div>
+    </header>
+
+    <section class="attention-strip" aria-label="Resumo de atenção">
+        <div class="attention-main">
+            <span class="attention-dot"></span>
+            <div>
+                <strong>{{ atrasados }} pedido(s) atrasado(s)</strong>
+                <span>{{ alertas }} próximo(s) do prazo · {{ em_transito }} em trânsito</span>
+            </div>
+        </div>
+        <a class="attention-link" href="{{ url_for('pedidos.dashboard', status='Atrasado') }}">Ver atrasados →</a>
+    </section>
+
+    <section class="kpi-grid" aria-label="Indicadores">
+        <a class="kpi-card" href="{{ url_for('pedidos.dashboard') }}">
+            <span class="kpi-label">Pedidos ativos</span>
+            <strong>{{ total_pedidos }}</strong>
+            <small>Todos os pedidos não excluídos</small>
+        </a>
+        <a class="kpi-card kpi-danger" href="{{ url_for('pedidos.dashboard', status='Atrasado') }}">
+            <span class="kpi-label">Atrasados</span>
+            <strong>{{ atrasados }}</strong>
+            <small>Prazo já vencido</small>
+        </a>
+        <a class="kpi-card kpi-warning" href="{{ url_for('pedidos.dashboard', proximos='1') }}">
+            <span class="kpi-label">Próximos do prazo</span>
+            <strong>{{ alertas }}</strong>
+            <small>Até 3 dias para entrega</small>
+        </a>
+        <a class="kpi-card kpi-info" href="{{ url_for('pedidos.dashboard', status='Em trânsito') }}">
+            <span class="kpi-label">Em trânsito</span>
+            <strong>{{ em_transito }}</strong>
+            <small>Com data de embarque</small>
+        </a>
+        <a class="kpi-card kpi-success" href="{{ url_for('pedidos.dashboard', status='Entregue') }}">
+            <span class="kpi-label">Entregues</span>
+            <strong>{{ entregues }}</strong>
+            <small>Pedidos finalizados</small>
+        </a>
+        <div class="kpi-card kpi-money">
+            <span class="kpi-label">Valor em trânsito</span>
+            <strong>{{ valor_transito }}</strong>
+            <small>{{ valor_total }} em pedidos ativos</small>
+        </div>
+    </section>
+
+    <section class="workspace card">
+        <div class="workspace-head">
+            <div>
+                <span class="eyebrow">Acompanhamento diário</span>
+                <h2>Pedidos</h2>
+                <p>{{ pedidos|length }} resultado(s) na visão atual.</p>
+            </div>
+            <div class="legend" aria-label="Legenda de status">
+                <span><i class="status-dot status-dot-danger"></i>Atrasado</span>
+                <span><i class="status-dot status-dot-warning"></i>Próximo</span>
+                <span><i class="status-dot status-dot-info"></i>Trânsito</span>
+                <span><i class="status-dot status-dot-success"></i>Entregue</span>
+            </div>
+        </div>
+
+        <form method="GET" action="{{ url_for('pedidos.dashboard') }}" class="smart-filters">
+            <div class="search-field">
+                <label for="filtro_pedido">Buscar pedido</label>
+                <input type="text" id="filtro_pedido" name="pedido" value="{{ filtros.pedido or '' }}" placeholder="Nº do pedido">
+            </div>
+			<div class="search-field">
+				<label for="filtro_nota_fiscal">Nota fiscal</label>
+					<input
+						type="text"
+						id="filtro_nota_fiscal"
+						name="nota_fiscal"
+						value="{{ filtros.nota_fiscal or '' }}"
+						placeholder="Nº da NF"
+					>
+				</div>
+            <div class="search-field">
+                <label for="filtro_fornecedor">Fornecedor</label>
+                <input type="text" id="filtro_fornecedor" name="fornecedor" value="{{ filtros.fornecedor or '' }}" placeholder="Fornecedor">
+            </div>
+            <div class="search-field">
+                <label for="filtro_transportadora">Transportadora</label>
+                <input type="text" id="filtro_transportadora" name="transportadora" value="{{ filtros.transportadora or '' }}" placeholder="Transportadora">
+            </div>
+            <div class="search-field">
+                <label for="filtro_vendedor">Vendedor</label>
+                <input type="text" id="filtro_vendedor" name="vendedor" value="{{ filtros.vendedor or '' }}" placeholder="Vendedor">
+            </div>
+            <div class="search-field">
+                <label for="filtro_status">Status</label>
+                <select id="filtro_status" name="status">
+                    <option value="">Todos</option>
+                    {% for status in ['Novo', 'Aguardando envio', 'Em trânsito', 'Próximo do prazo', 'Atrasado', 'Entregue'] %}
+                    <option value="{{ status }}" {% if filtros.status == status %}selected{% endif %}>{{ status }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <input type="hidden" name="proximos" value="{{ filtros.proximos or '' }}">
+            <div class="filter-actions">
+                <button type="submit" class="btn btn-primary">Aplicar filtros</button>
+                <a href="{{ url_for('pedidos.dashboard') }}" class="btn btn-ghost">Limpar</a>
+            </div>
+        </form>
+
+        {% if pedidos %}
+        <div class="orders-table-wrap">
+            <table class="orders-table">
+                <thead>
+                    <tr>
+                        <th>Pedido</th>
+                        <th>Fornecedor</th>
+                        <th>Status</th>
+                        <th>Previsão</th>
+                        <th>Valor</th>
+                        <th>Responsável</th>
+                        <th>Frete</th>
+                        <th class="actions-col">Ações</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for pedido in pedidos %}
+                    <tr id="linha-pedido-{{ pedido.id }}" class="order-row order-row-{{ pedido.status_key }}">
+                        <td>
+                            <button type="button" class="order-id" onclick="visualizarPedido({{ pedido.id }})">
+                                #{{ pedido.numero_pedido or pedido.id }}
+                            </button>
+                            <span class="secondary-text">{{ pedido.data_pedido or 'Data não informada' }}</span>
+                        </td>
+                        <td>
+                            <strong class="cell-primary">{{ pedido.fornecedor }}</strong>
+                            <span class="secondary-text">{{ pedido.transportadora or 'Transportadora não informada' }}</span>
+                        </td>
+                        <td>
+                            <span class="status-badge status-{{ pedido.status_key }}">{{ pedido.status_label }}</span>
+                            {% if pedido.dias_para_entrega is not none and pedido.status_key != 'entregue' %}
+                                <span class="secondary-text">{% if pedido.dias_para_entrega < 0 %}{{ pedido.dias_para_entrega|abs }} dia(s) em atraso{% elif pedido.dias_para_entrega == 0 %}vence hoje{% else %}{{ pedido.dias_para_entrega }} dia(s){% endif %}</span>
+                            {% endif %}
+                        </td>
+                        <td><strong>{{ pedido.previsao_chegada or '-' }}</strong></td>
+                        <td><strong class="money">{{ pedido.valor_formatado }}</strong></td>
+                        <td>
+                            <span class="cell-primary">{{ pedido.responsavel or '-' }}</span>
+                            <span class="secondary-text">{{ pedido.vendedor or 'Sem vendedor' }}</span>
+                        </td>
+                        <td><span class="transport-badge">{{ pedido.tipo_frete or '-' }}</span></td>
+                        <td class="row-actions">
+
+							<label
+								class="switch"
+								title="{% if pedido.entregue == 1 %}Pedido entregue{% else %}Marcar como entregue{% endif %}"
+							>
+						
+								<input
+									type="checkbox"
+									onchange="toggleEntrega({{ pedido.id }}, this)"
+									{% if pedido.entregue == 1 %}
+										checked
+									{% endif %}
+								>
+						
+								<span class="slider"></span>
+						
+							</label>
+						
+							<button
+								type="button"
+								class="icon-btn"
+								title="Visualizar pedido"
+								onclick="visualizarPedido({{ pedido.id }})"
+							>
+								Ver
+							</button>
+						
+							<button
+								type="button"
+								class="icon-btn"
+								title="Editar pedido"
+								onclick="editarPedido({{ pedido.id }})"
+							>
+								Editar
+							</button>
+						
+							<button
+								type="button"
+								class="icon-btn icon-btn-danger"
+								title="Mover para lixeira"
+								onclick="apagarPedido({{ pedido.id }}, this)"
+							>
+								Excluir
+							</button>
+						
+						</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}
+        <div class="empty-state">
+            <strong>Nenhum pedido encontrado</strong>
+            <span>Tente ajustar os filtros ou cadastre um novo pedido.</span>
+            <button type="button" class="btn btn-primary" onclick="abrirModalNovo()">Cadastrar pedido</button>
+        </div>
+        {% endif %}
+    </section>
+</section>
+
+<!-- MODAL VISUALIZAÇÃO -->
+<div id="modalVisualizar" class="modal" aria-hidden="true">
+    <div class="modal-content modal-large">
+        <div class="modal-header">
+            <div><span class="eyebrow">Detalhes do pedido</span><h2 id="visualizarTitulo">Pedido</h2></div>
+            <button type="button" class="modal-close" onclick="fecharModal('modalVisualizar')" aria-label="Fechar">×</button>
+        </div>
+        <div id="visualizarConteudo" class="detail-body">
+            <div class="loading-state">Carregando informações...</div>
+        </div>
+        <div class="modal-footer modal-footer-split">
+            <button type="button" id="btnVisualizarAnexo" class="btn btn-ghost" style="display:none" title="Abre o arquivo anexado em uma nova aba, de onde é possível imprimir ou baixar">Visualizar pedido anexado</button>
+            <div class="modal-footer-actions">
+                <button type="button" class="btn btn-ghost" onclick="fecharModal('modalVisualizar')">Fechar</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- FORMULÁRIO EDITAR -->
+<div id="modalEditar" class="modal" aria-hidden="true">
+    <div class="modal-content modal-large">
+        <div class="modal-header">
+            <div><span class="eyebrow">Manutenção</span><h2>Editar pedido</h2></div>
+            <button type="button" class="modal-close" onclick="fecharModal('modalEditar')" aria-label="Fechar">×</button>
+        </div>
+        <form id="formEditar" method="POST" enctype="multipart/form-data">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+            {% set form_prefix = '' %}{% set form_mode = 'edit' %}{% include '_pedido_fields.html' %}
+            <div class="modal-footer"><button type="button" class="btn btn-ghost" onclick="fecharModal('modalEditar')">Cancelar</button><button type="submit" class="btn btn-primary">Salvar alterações</button></div>
+        </form>
+    </div>
+</div>
+
+<!-- FORMULÁRIO NOVO -->
+<div id="modalPedidoNovo" class="modal" aria-hidden="true">
+    <div class="modal-content modal-large">
+        <div class="modal-header">
+            <div><span class="eyebrow">Cadastro</span><h2>Novo pedido</h2></div>
+            <button type="button" class="modal-close" onclick="fecharModal('modalPedidoNovo')" aria-label="Fechar">×</button>
+        </div>
+        <form id="formNovo" method="POST" action="{{ url_for('pedidos.salvar') }}" enctype="multipart/form-data">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+            {% set form_prefix = '_novo' %}{% set form_mode = 'new' %}{% include '_pedido_fields.html' %}
+            <div class="modal-footer"><button type="button" class="btn btn-ghost" onclick="fecharModal('modalPedidoNovo')">Cancelar</button><button type="submit" class="btn btn-primary">Salvar pedido</button></div>
+        </form>
+    </div>
+</div>
+
+<script src="{{ url_for('static', filename='js/sidebar.js') }}"></script>
+<script src="{{ url_for('static', filename='js/dashboard.js') }}"></script>
+{% endblock %}

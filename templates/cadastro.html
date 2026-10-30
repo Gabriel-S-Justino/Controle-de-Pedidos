@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="robots" content="noindex, nofollow">
+
+    <title>Cadastro</title>
+
+    <link rel="icon" type="image/png" href="{{ url_for('static', filename='img/favicon.png') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/auth.css') }}">
+</head>
+
+<body>
+
+<main class="card">
+
+    <h1>Criar Conta</h1>
+
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            <div class="messages" role="alert" aria-live="polite">
+                {% for category, message in messages %}
+                    <div class="msg {{ category }}">
+                        {{ message }}
+                    </div>
+                {% endfor %}
+            </div>
+        {% endif %}
+    {% endwith %}
+
+    <form method="POST" action="{{ url_for('login_bp.cadastro') }}" id="cadastro-form">
+
+        <input
+            type="hidden"
+            name="csrf_token"
+            value="{{ csrf_token() }}">
+
+        <div class="input-group">
+            <label for="username">Usuário</label>
+            <input
+                type="text"
+                id="username"
+                name="username"
+                value="{{ username or '' }}"
+                maxlength="30"
+                autocomplete="username"
+                required
+                autofocus
+                placeholder="Digite seu usuário">
+        </div>
+
+        <div class="input-group">
+            <label for="email">E-mail</label>
+            <input
+                type="email"
+                id="email"
+                name="email"
+                value="{{ email or '' }}"
+                maxlength="254"
+                autocomplete="email"
+                placeholder="Digite seu e-mail">
+        </div>
+
+        <div class="input-group">
+            <label for="senha">Senha</label>
+            <input
+                type="password"
+                id="senha"
+                name="senha"
+                maxlength="128"
+                autocomplete="new-password"
+                required
+                placeholder="••••••••">
+        </div>
+
+        <div class="input-group">
+            <label for="confirmar_senha">Confirmar Senha</label>
+            <input
+                type="password"
+                id="confirmar_senha"
+                name="confirmar_senha"
+                maxlength="128"
+                autocomplete="new-password"
+                required
+                placeholder="••••••••">
+        </div>
+
+        <button type="submit" class="btn-submit" id="cadastro-submit">
+            Criar Conta
+        </button>
+
+    </form>
+
+    <div class="footer-link">
+        Já possui uma conta?
+        <a href="{{ url_for('login_bp.login') }}">
+            Entrar
+        </a>
+    </div>
+
+</main>
+
+<script src="{{ url_for('static', filename='js/cadastro.js') }}"></script>
+
+</body>
+</html>

@@ -1,0 +1,83 @@
+
+<div class="form-layout">
+    <section class="form-section">
+        <div class="form-section-title"><span>01</span><div><h3>Identificação</h3><p>Dados que identificam o pedido.</p></div></div>
+        <div class="form-grid">
+            <div class="field"><label for="numero_pedido{{ form_prefix }}">Nº do pedido</label><input type="text" id="numero_pedido{{ form_prefix }}" name="numero_pedido" placeholder="Ex.: 45821"></div>
+            <div class="field"><label for="fornecedor{{ form_prefix }}">Fornecedor *</label><input type="text" id="fornecedor{{ form_prefix }}" name="fornecedor" required placeholder="Nome do fornecedor"></div>
+            <div class="field"><label for="vendedor{{ form_prefix }}">Vendedor</label><input type="text" id="vendedor{{ form_prefix }}" name="vendedor" placeholder="Vendedor responsável"></div>
+            <div class="field"><label for="responsavel{{ form_prefix }}">Responsável *</label><input type="text" id="responsavel{{ form_prefix }}" name="responsavel" required placeholder="Responsável interno"></div>
+            <div class="field field-wide"><label for="email{{ form_prefix }}">E-mail para notificações *</label><input type="email" id="email{{ form_prefix }}" name="email" required placeholder="email@empresa.com"></div>
+        </div>
+    </section>
+
+    <section class="form-section">
+        <div class="form-section-title"><span>02</span><div><h3>Logística e prazo</h3><p>Informações usadas para acompanhar a entrega.</p></div></div>
+        <div class="form-grid">
+            <div class="field"><label for="transportadora{{ form_prefix }}">Transportadora *</label><input type="text" id="transportadora{{ form_prefix }}" name="transportadora" required placeholder="Transportadora"></div>
+            <div class="field"><label for="tipo_frete{{ form_prefix }}">Tipo de frete *</label><select id="tipo_frete{{ form_prefix }}" name="tipo_frete" required><option value="">Selecione</option><option value="Aéreo">Aéreo</option><option value="Rodoviário">Rodoviário</option><option value="Retirada">Retirada</option><option value="Entrega">Entrega</option></select></div>
+            <div class="field"><label for="data_pedido{{ form_prefix }}">Data do pedido *</label><input type="date" id="data_pedido{{ form_prefix }}" name="data_pedido" required></div>
+            <div class="field"><label for="previsao_chegada{{ form_prefix }}">Previsão de chegada *</label><input type="date" id="previsao_chegada{{ form_prefix }}" name="previsao_chegada" required></div>
+            <div class="field"><label for="data_embarque{{ form_prefix }}">Data de embarque (Emissão do CTE)</label><input type="date" id="data_embarque{{ form_prefix }}" name="data_embarque"></div>
+        </div>
+    </section>
+
+    <section class="form-section">
+        <div class="form-section-title"><span>03</span><div><h3>Financeiro</h3><p>Valores do pedido e do frete.</p></div></div>
+        <div class="form-grid">
+            <div class="field"><label for="valor{{ form_prefix }}">Valor total *</label><input type="text" id="valor{{ form_prefix }}" name="valor" inputmode="decimal" required placeholder="0,00"></div>
+            <div class="field"><label for="valor_nota{{ form_prefix }}">Valor da nota</label><input type="text" id="valor_nota{{ form_prefix }}" name="valor_nota" inputmode="decimal" placeholder="0,00" oninput="calcularPercentualFrete('valor_nota{{ form_prefix }}','valor_frete{{ form_prefix }}','percentual_frete{{ form_prefix }}')"></div>
+            <div class="field"><label for="valor_frete{{ form_prefix }}">Valor do frete</label><input type="text" id="valor_frete{{ form_prefix }}" name="valor_frete" inputmode="decimal" placeholder="0,00" oninput="calcularPercentualFrete('valor_nota{{ form_prefix }}','valor_frete{{ form_prefix }}','percentual_frete{{ form_prefix }}')"></div>
+            <div class="field"><label for="percentual_frete{{ form_prefix }}">Percentual do frete</label><input type="text" id="percentual_frete{{ form_prefix }}" readonly tabindex="-1" placeholder="0,00%"></div>
+        </div>
+    </section>
+
+    <section class="form-section">
+        <div class="form-section-title"><span>04</span><div><h3>Documentação</h3><p>Referências fiscais e arquivos relacionados.</p></div></div>
+        <div class="form-grid">
+            <div class="field"><label for="nota_fiscal{{ form_prefix }}">Nº da nota fiscal</label><input type="text" id="nota_fiscal{{ form_prefix }}" name="nota_fiscal" placeholder="Nº da NF"></div>
+            <div class="field"><label for="cte{{ form_prefix }}">Nº do CTE</label><input type="text" id="cte{{ form_prefix }}" name="cte" placeholder="Nº do CTE"></div>
+            <div class="field field-wide"><label for="arquivo{{ form_prefix }}">Arquivo</label><input type="file" id="arquivo{{ form_prefix }}" name="arquivo" accept=".pdf,.png,.jpg,.jpeg,.xlsx"></div>
+        </div>
+    </section>
+
+    <section class="form-section">
+        <div class="form-section-title"><span>05</span><div><h3>Observações</h3><p>Informações complementares do acompanhamento.</p></div></div>
+
+        {% if form_mode == 'edit' %}
+        <div class="field">
+            <label for="observacao{{ form_prefix }}">Histórico de observações</label>
+            <textarea
+                id="observacao{{ form_prefix }}"
+                name="observacao"
+                rows="6"
+                readonly
+                placeholder="Nenhuma observação registrada."
+            ></textarea>
+            <small>As observações anteriores são preservadas e não podem ser sobrescritas.</small>
+        </div>
+
+        <div class="field">
+            <label for="nova_observacao{{ form_prefix }}">Nova observação</label>
+            <textarea
+                id="nova_observacao{{ form_prefix }}"
+                name="nova_observacao"
+                rows="4"
+                placeholder="Digite uma nova observação..."
+            ></textarea>
+            <small>A data será adicionada automaticamente no formato dd/mm/AAAA &gt;&gt; Observação.</small>
+        </div>
+        {% else %}
+        <div class="field">
+            <label for="observacao{{ form_prefix }}">Observação</label>
+            <textarea
+                id="observacao{{ form_prefix }}"
+                name="observacao"
+                rows="4"
+                placeholder="Registre informações relevantes sobre o pedido..."
+            ></textarea>
+            <small>A data será adicionada automaticamente no formato dd/mm/AAAA &gt;&gt; Observação.</small>
+        </div>
+        {% endif %}
+    </section>
+</div>

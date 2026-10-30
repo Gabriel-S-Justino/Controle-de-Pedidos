@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="robots" content="noindex, nofollow">
+	<meta name="csrf-token" content="{{ csrf_token() }}">
+    <title>CNP - Compras</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+	<link
+        rel="icon"
+        type="image/png"
+        href="{{ url_for('static', filename='img/favicon.png') }}"
+    >
+	
+	
+</head>
+<body class="{% if show_sidebar %}sidebar-page{% endif %}">
+    <div class="container">
+        <!-- TOPBAR (global, mas pode ser desativada por página) -->
+        {% if not hide_topbar %}
+        <div class="topbar">
+            <div class="brand">
+                <h1>CNP Compras</h1>
+                <p>Central inteligente de gestão de pedidos</p>
+            </div>
+            <div class="topbar-right">
+                {% if request.endpoint == "pedidos.lixeira" %}
+                    <a href="{{ url_for('pedidos.dashboard') }}" class="nav-btn">Dashboard</a>
+                {% elif request.endpoint != "pedidos.dashboard" %}
+                    <a href="{{ url_for('pedidos.dashboard') }}" class="nav-btn">Dashboard</a>
+                    <a href="{{ url_for('pedidos.lixeira') }}" class="nav-btn">Lixeira</a>
+                {% endif %}
+                <div class="status">Sistema Online</div>
+            </div>
+        </div>
+        {% endif %}
+
+        {% block sidebar %}{% endblock %}
+
+        <!-- FLASH -->
+        {% with messages = get_flashed_messages() %}
+            {% if messages %}
+                {% for message in messages %}
+                    <div class="flash" style="top: calc(20px + {{ loop.index0 * 70 }}px); display: flex; align-items: center; justify-content: space-between; gap: 0.75rem;">
+                        <span>{{ message }}</span>
+                        <button
+                            type="button"
+                            onclick="this.closest('.flash').remove()"
+                            aria-label="Fechar aviso"
+                            style="background: none; border: none; cursor: pointer; font-size: 1.1rem; line-height: 1; color: inherit;"
+                        >&times;</button>
+                    </div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+
+        {% block content %}{% endblock %}
+    </div>
+
+    <script src="{{ url_for('static', filename='js/layout.js') }}"></script>
+</body>
+</html>

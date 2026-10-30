@@ -1,0 +1,83 @@
+{% extends "layout.html" %}
+
+{% set hide_topbar = true %}
+
+{% set show_sidebar = true %}
+
+{% block sidebar %}
+    {% include "_sidebar.html" %}
+{% endblock %}
+
+{% block content %}
+
+<div class="card">
+
+    <div class="workspace-head">
+
+        <div>
+            <h2>Lixeira</h2>
+            <p>Pedidos removidos</p>
+        </div>
+
+    </div>
+
+    {% if pedidos and pedidos|length > 0 %}
+
+    <div class="table-wrapper">
+
+        <table>
+
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Fornecedor</th>
+                    <th>Transportadora</th>
+                    <th>Frete</th>
+                    <th>Valor</th>
+                    <th>Ações</th>
+                </tr>
+            </thead>
+
+            <tbody>
+
+                {% for pedido in pedidos %}
+                <tr>
+                    <td>#{{ pedido["id"] }}</td>
+                    <td>{{ pedido["fornecedor"] }}</td>
+                    <td>{{ pedido["transportadora"] }}</td>
+                    <td>
+                        <span class="badge">
+                            {{ pedido["tipo_frete"] }}
+                        </span>
+                    </td>
+                    <td class="money">
+                        {{ pedido["valor_formatado"] }}
+                    </td>
+                    <td>
+                        <button
+                            class="restore-btn"
+                            onclick="restaurarPedido({{ pedido['id'] }}, this)"
+                        >
+                            Restaurar
+                        </button>
+                    </td>
+                </tr>
+                {% endfor %}
+
+            </tbody>
+
+        </table>
+
+    </div>
+
+    {% else %}
+    <div class="empty-state">
+        Nenhum pedido removido
+    </div>
+    {% endif %}
+
+</div>
+
+<script src="{{ url_for('static', filename='js/lixeira.js') }}"></script>
+
+{% endblock %}
